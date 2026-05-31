@@ -1,10 +1,11 @@
 'use client';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import EditorCanvas from '@/components/EditorCanvas';
 import ToolBar from '@/components/ToolBar';
 import ColorPanel from '@/components/ColorPanel';
 import { floodFill } from '@/lib/pixelation';
+import { detectLongBeads, LongBead } from '@/lib/longBeads';
 import Link from 'next/link';
 
 interface CellData { row: number; col: number; hex: string | null; color_no: string | null; }
@@ -26,6 +27,7 @@ export default function EditorPage() {
   const [scale, setScale] = useState(1);
   const [hoveredCell, setHoveredCell] = useState<{ row: number; col: number } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showLongBeads, setShowLongBeads] = useState(false);
   const historyRef = useRef<HistoryEntry[]>([]);
   const historyIndexRef = useRef(-1);
 
@@ -35,6 +37,11 @@ export default function EditorPage() {
       .then(data => { setProject(data.project); setCells(data.cells || []); setLoading(false); })
       .catch(() => setLoading(false));
   }, [projectId]);
+
+  const longBeads = useMemo(() => {
+    if (!project) return [];
+    return detectLongBeads(cells, project.rows, project.cols);
+  }, [cells, project]);
 
   const pushHistory = useCallback((changedCells: HistoryEntry['cells']) => {
     if (historyIndexRef.current < historyRef.current.length - 1) {
@@ -146,6 +153,11 @@ export default function EditorPage() {
           <Link href="/" className="text-gray-600 hover:text-gray-900">← 返回</Link>
           <h1 className="font-bold">{project.name}</h1>
           <span className="text-sm text-gray-500">{project.rows}×{project.cols}</span>
+          {longBeads.length > 0 && (
+            <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200">
+              {longBeads.length} 长条豆
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {hoveredCell && (
@@ -162,13 +174,17 @@ export default function EditorPage() {
         </div>
       </div>
       <div className="flex-1 flex overflow-hidden">
-        <ToolBar activeTool={activeTool} onToolChange={setActiveTool} onUndo={handleUndo} onRedo={handleRedo}
+        <ToolBar
+          activeTool={activeTool} onToolChange={setActiveTool} onUndo={handleUndo} onRedo={handleRedo}
           canUndo={historyIndexRef.current >= 0} canRedo={historyIndexRef.current < historyRef.current.length - 1}
           scale={scale} onZoomIn={() => setScale(s => Math.min(s + 0.2, 3))} onZoomOut={() => setScale(s => Math.max(s - 0.2, 0.4))}
+          showLongBeads={showLongBeads} onToggleLongBeads={() => setShowLongBeads(v => !v)}
         />
         <div className="flex-1 overflow-auto bg-gray-100 flex items-center justify-center p-4">
-          <EditorCanvas rows={project.rows} cols={project.cols} cells={cells} selectedColor={selectedColor}
+          <EditorCanvas
+            rows={project.rows} cols={project.cols} cells={cells} selectedColor={selectedColor}
             highlightedColor={highlightedColor} scale={scale}
+            longBeads={longBeads} showLongBeads={showLongBeads}
             onCellClick={handleCellClick} onCellHover={(row, col) => setHoveredCell({ row, col })}
           />
         </div>

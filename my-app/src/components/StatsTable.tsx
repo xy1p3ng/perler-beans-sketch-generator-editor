@@ -3,12 +3,23 @@
 interface StatsTableProps {
   stats: Array<{ color_no: string; name: string; hex: string; count: number; percentage: number }>;
   total: number;
+  longBeadCount?: number;
 }
 
-export default function StatsTable({ stats, total }: StatsTableProps) {
+export default function StatsTable({ stats, total, longBeadCount = 0 }: StatsTableProps) {
+  const regularBeads = total - longBeadCount;
+
   return (
     <div>
-      <h3 className="font-bold mb-3">用豆统计（共 {total} 颗）</h3>
+      <h3 className="font-bold mb-3">
+        用豆统计（共 {total} 颗
+        {longBeadCount > 0 && (
+          <span className="text-amber-600 font-normal">
+            {' '}· {regularBeads} 常规 / {longBeadCount} 长条
+          </span>
+        )}
+        ）
+      </h3>
       <table className="w-full text-sm">
         <thead>
           <tr className="bg-gray-100 text-left">

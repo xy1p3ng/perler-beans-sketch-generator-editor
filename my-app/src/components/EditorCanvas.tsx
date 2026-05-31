@@ -30,6 +30,7 @@ interface EditorCanvasProps {
 const CELL_SIZE = 20;
 const GRID_COLOR = '#e0e0e0';
 const DIM_FACTOR = 0.25;
+const MARGIN = 20;
 
 function dimHex(hex: string): string {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -39,6 +40,17 @@ function dimHex(hex: string): string {
   const ng = Math.round(g * DIM_FACTOR + 255 * (1 - DIM_FACTOR));
   const nb = Math.round(b * DIM_FACTOR + 255 * (1 - DIM_FACTOR));
   return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
+}
+
+function colToLetter(col: number): string {
+  let result = '';
+  let n = col + 1;
+  while (n > 0) {
+    n--;
+    result = String.fromCharCode(65 + (n % 26)) + result;
+    n = Math.floor(n / 26);
+  }
+  return result;
 }
 
 export default function EditorCanvas({ rows, cols, cells, selectedColor, highlightedColor, scale, longBeads = [], showLongBeads = false, onCellClick, onCellHover, showCoordinates, taskColor, onCellToggleComplete }: EditorCanvasProps) {
@@ -62,16 +74,33 @@ export default function EditorCanvas({ rows, cols, cells, selectedColor, highlig
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     const scaledCellSize = CELL_SIZE * scale;
-    canvas.width = cols * scaledCellSize + 1;
-    canvas.height = rows * scaledCellSize + 1;
+    canvas.width = cols * scaledCellSize + MARGIN + 1;
+    canvas.height = rows * scaledCellSize + MARGIN + 1;
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw column letters (A, B, C...) on top edge
+    ctx.font = `${Math.max(8, Math.min(10, scaledCellSize * 0.5))}px sans-serif`;
+    ctx.fillStyle = '#999';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    for (let col = 0; col < cols; col++) {
+      const x = MARGIN + col * scaledCellSize + scaledCellSize / 2;
+      ctx.fillText(colToLetter(col), x, MARGIN / 2);
+    }
+
+    // Draw row numbers (1, 2, 3...) on left edge
+    for (let row = 0; row < rows; row++) {
+      const y = MARGIN + row * scaledCellSize + scaledCellSize / 2;
+      ctx.fillText(String(row + 1), MARGIN / 2, y);
+    }
 
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         const cell = cellMap.get(`${row},${col}`);
-        const x = col * scaledCellSize;
-        const y = row * scaledCellSize;
+        const x = MARGIN + col * scaledCellSize;
+        const y = MARGIN + row * scaledCellSize;
 
         const isHighlighted = highlightedColor && cell?.color_no === highlightedColor;
         const isDimmed = highlightedColor && cell?.color_no !== highlightedColor;
@@ -149,8 +178,8 @@ export default function EditorCanvas({ rows, cols, cells, selectedColor, highlig
     }
 
     if (hoveredCell) {
-      const x = hoveredCell.col * scaledCellSize;
-      const y = hoveredCell.row * scaledCellSize;
+      const x = MARGIN + hoveredCell.col * scaledCellSize;
+      const y = MARGIN + hoveredCell.row * scaledCellSize;
       ctx.strokeStyle = '#2196f3';
       ctx.lineWidth = 2;
       ctx.strokeRect(x, y, scaledCellSize, scaledCellSize);
@@ -163,8 +192,8 @@ export default function EditorCanvas({ rows, cols, cells, selectedColor, highlig
     const canvas = canvasRef.current;
     if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = e.clientX - rect.left - MARGIN;
+    const y = e.clientY - rect.top - MARGIN;
     const scaledCellSize = CELL_SIZE * scale;
     const col = Math.floor(x / scaledCellSize);
     const row = Math.floor(y / scaledCellSize);

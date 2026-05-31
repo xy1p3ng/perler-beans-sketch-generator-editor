@@ -1,10 +1,11 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import StatsTable from '@/components/StatsTable';
 import ExportPanel from '@/components/ExportPanel';
 import { exportToPNG, exportToPDF, exportStatsCSV, exportCoordinates } from '@/lib/export';
+import { detectLongBeads } from '@/lib/longBeads';
 
 interface ProjectData { id: number; name: string; rows: number; cols: number; source_image: string; }
 interface CellData { row: number; col: number; hex: string | null; color_no: string | null; }
@@ -30,6 +31,11 @@ export default function ExportPage() {
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [projectId]);
+
+  const longBeads = useMemo(() => {
+    if (!project) return [];
+    return detectLongBeads(cells, project.rows, project.cols);
+  }, [cells, project]);
 
   const handleExport = async (options: { png: boolean; pdf: boolean; csv: boolean; coords: boolean }) => {
     if (!project || !stats) return;
@@ -84,10 +90,17 @@ export default function ExportPage() {
           <div className="w-44 h-44 mx-auto bg-gray-50 border border-gray-200 flex items-center justify-center">
             <img src={project.source_image} alt={project.name} className="max-w-full max-h-full object-contain" />
           </div>
-          <div className="mt-3 text-sm text-gray-600 text-center">{project.rows}x{project.cols} · {stats.stats.length}色 · {stats.total}颗</div>
+          <div className="mt-3 text-sm text-gray-600 text-center">
+            {project.rows}x{project.cols} · {stats.stats.length}色 · {stats.total}颗
+          </div>
+          {longBeads.length > 0 && (
+            <div className="mt-2 text-sm text-amber-600 text-center font-medium">
+              {longBeads.length} 长条豆
+            </div>
+          )}
         </div>
         <div className="flex-1 border border-gray-200 rounded-lg p-4 bg-white">
-          <StatsTable stats={stats.stats} total={stats.total} />
+          <StatsTable stats={stats.stats} total={stats.total} longBeadCount={longBeads.length} />
         </div>
         <ExportPanel onExport={handleExport} disabled={exporting} />
       </div>
