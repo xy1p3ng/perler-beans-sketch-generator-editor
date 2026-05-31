@@ -21,6 +21,17 @@ interface EditorCanvasProps {
 
 const CELL_SIZE = 20;
 const GRID_COLOR = '#e0e0e0';
+const DIM_FACTOR = 0.25;
+
+function dimHex(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const nr = Math.round(r * DIM_FACTOR + 255 * (1 - DIM_FACTOR));
+  const ng = Math.round(g * DIM_FACTOR + 255 * (1 - DIM_FACTOR));
+  const nb = Math.round(b * DIM_FACTOR + 255 * (1 - DIM_FACTOR));
+  return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
+}
 
 export default function EditorCanvas({ rows, cols, cells, selectedColor, highlightedColor, scale, onCellClick, onCellHover }: EditorCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -46,17 +57,28 @@ export default function EditorCanvas({ rows, cols, cells, selectedColor, highlig
         const cell = cellMap.get(`${row},${col}`);
         const x = col * scaledCellSize;
         const y = row * scaledCellSize;
+
+        const isHighlighted = highlightedColor && cell?.color_no === highlightedColor;
+        const isDimmed = highlightedColor && cell?.color_no !== highlightedColor;
+
         if (cell?.hex) {
-          ctx.fillStyle = cell.hex;
+          if (isDimmed) {
+            ctx.fillStyle = dimHex(cell.hex);
+          } else {
+            ctx.fillStyle = cell.hex;
+          }
           ctx.fillRect(x, y, scaledCellSize, scaledCellSize);
         }
-        if (highlightedColor && cell?.color_no === highlightedColor) {
-          ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
-          ctx.fillRect(x, y, scaledCellSize, scaledCellSize);
+
+        if (isHighlighted) {
+          ctx.strokeStyle = '#2196f3';
+          ctx.lineWidth = Math.max(2, scaledCellSize * 0.15);
+          ctx.strokeRect(x + ctx.lineWidth / 2, y + ctx.lineWidth / 2, scaledCellSize - ctx.lineWidth, scaledCellSize - ctx.lineWidth);
+        } else {
+          ctx.strokeStyle = isDimmed ? 'rgba(224,224,224,0.5)' : GRID_COLOR;
+          ctx.lineWidth = 1;
+          ctx.strokeRect(x, y, scaledCellSize, scaledCellSize);
         }
-        ctx.strokeStyle = GRID_COLOR;
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x, y, scaledCellSize, scaledCellSize);
       }
     }
 
