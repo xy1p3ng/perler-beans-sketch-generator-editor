@@ -6,8 +6,9 @@
 .claude/
 .superpowers/
 
-# Project docs (keep in repo)
+# Project docs
 !docs/
+docs/superpowers/
 
 # OS
 .DS_Store
