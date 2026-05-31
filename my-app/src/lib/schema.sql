@@ -54,12 +54,15 @@ CREATE TABLE IF NOT EXISTS edit_history (
 
 CREATE INDEX IF NOT EXISTS idx_history_project ON edit_history(project_id);
 
--- 用户设置表（API Key 配置）
-CREATE TABLE IF NOT EXISTS user_settings (
+-- Provider 配置表
+CREATE TABLE IF NOT EXISTS provider_configs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  openai_api_key TEXT,
-  default_model TEXT DEFAULT 'dall-e-3',
-  default_style TEXT DEFAULT 'cartoon',
+  provider TEXT NOT NULL,
+  api_key TEXT,
+  model TEXT,
+  base_url TEXT,
+  is_active INTEGER DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(provider)
 );
