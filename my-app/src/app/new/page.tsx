@@ -1,29 +1,58 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import UploadZone from '@/components/UploadZone';
+import AIGenerator from '@/components/AIGenerator';
 import ParameterPanel from '@/components/ParameterPanel';
 import { pixelateImage } from '@/lib/pixelation';
 import { MARD_PALETTE } from '@/lib/palette';
 import { calculateComplexity, ComplexityScore } from '@/lib/complexity';
 
+type Tab = 'upload' | 'ai';
+
 export default function NewProject() {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<Tab>('upload');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [aiImageUrl, setAiImageUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [complexity, setComplexity] = useState<ComplexityScore | null>(null);
   const [pendingProjectId, setPendingProjectId] = useState<string | null>(null);
 
+  const handleImageGenerated = (imageUrl: string) => {
+    setAiImageUrl(imageUrl);
+  };
+
   const handleGenerate = async (params: { name: string; rows: number; cols: number; boardType: string; colorLimit: number; ditherEnabled: boolean; colorBias: 'warm' | 'cool' | 'neutral' | null }) => {
-    if (!selectedFile) { setError('请先上传图片'); return; }
+    let file = selectedFile;
+
+    // If AI tab is active and we have a generated image, fetch it as blob
+    if (activeTab === 'ai' && aiImageUrl && !file) {
+      try {
+        const res = await fetch(aiImageUrl);
+        const blob = await res.blob();
+        file = new File([blob], 'ai-generated.png', { type: blob.type || 'image/png' });
+      } catch (err) {
+        setError('获取生成的图片失败');
+        return;
+      }
+    }
+
+    if (!file) {
+      setError(activeTab === 'ai' ? '请先生成图片' : '请先上传图片');
+      return;
+    }
+
     setIsGenerating(true);
     setError(null);
     setComplexity(null);
     setPendingProjectId(null);
+
     try {
       const formData = new FormData();
-      formData.append('image', selectedFile);
+      formData.append('image', file);
       formData.append('name', params.name);
       formData.append('rows', String(params.rows));
       formData.append('cols', String(params.cols));
@@ -38,7 +67,7 @@ export default function NewProject() {
       if (!projectRes.ok) throw new Error('创建项目失败');
       const { id: projectId } = await projectRes.json();
 
-      const imageUrl = URL.createObjectURL(selectedFile);
+      const imageUrl = URL.createObjectURL(file);
       const result = await pixelateImage(imageUrl, params.rows, params.cols, params.colorLimit, MARD_PALETTE, params.colorBias);
       URL.revokeObjectURL(imageUrl);
 
@@ -55,6 +84,7 @@ export default function NewProject() {
       setPendingProjectId(projectId);
     } catch (err) {
       setError(err instanceof Error ? err.message : '生成失败');
+    } finally {
       setIsGenerating(false);
     }
   };
@@ -76,10 +106,43 @@ export default function NewProject() {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">新建项目</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">新建项目</h1>
+        <Link href="/settings">
+          <button className="px-4 py-2 text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+            设置
+          </button>
+        </Link>
+      </div>
+
       {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">{error}</div>}
+
+      {/* Tabs */}
+      <div className="flex gap-2 mb-6 border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab('upload')}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'upload' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+        >
+          上传图片
+        </button>
+        <button
+          onClick={() => setActiveTab('ai')}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'ai' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+        >
+          AI生成
+        </button>
+      </div>
+
       <div className="flex gap-6">
-        <div className="flex-1"><UploadZone onImageSelect={setSelectedFile} /></div>
+        <div className="flex-1">
+          {activeTab === 'upload' ? (
+            <UploadZone onImageSelect={setSelectedFile} />
+          ) : (
+            <div className="border border-gray-200 rounded-lg p-5 bg-white min-h-[280px]">
+              <AIGenerator onImageGenerated={handleImageGenerated} />
+            </div>
+          )}
+        </div>
         <div className="w-72">
           <ParameterPanel onSubmit={handleGenerate} disabled={isGenerating} />
         </div>

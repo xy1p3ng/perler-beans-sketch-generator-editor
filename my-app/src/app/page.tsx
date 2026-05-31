@@ -31,9 +31,16 @@ export default function Home() {
     <div className="max-w-4xl mx-auto p-6">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold">拼豆工坊</h1>
-        <Link href="/new">
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">+ 新建项目</button>
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/settings">
+            <button className="px-4 py-2 text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+              设置
+            </button>
+          </Link>
+          <Link href="/new">
+            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">+ 新建项目</button>
+          </Link>
+        </div>
       </div>
       {loading ? (
         <div className="text-center text-gray-500">加载中...</div>
