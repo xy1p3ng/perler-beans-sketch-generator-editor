@@ -2,82 +2,113 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
+interface ProviderConfig {
+  provider: string;
+  hasKey: boolean;
+  model: string | null;
+  isActive: boolean;
+}
+
+interface ProviderDef {
+  id: string;
+  name: string;
+  models: Array<{ id: string; name: string }>;
+  defaultModel: string;
+}
+
+const PROVIDER_LIST: ProviderDef[] = [
+  { id: 'openai', name: 'OpenAI', models: [{ id: 'dall-e-3', name: 'DALL-E 3' }, { id: 'dall-e-2', name: 'DALL-E 2' }], defaultModel: 'dall-e-3' },
+  { id: 'gemini', name: 'Google Gemini', models: [{ id: 'gemini-2.0-flash-exp-image-generation', name: 'Gemini 2.0 Flash' }], defaultModel: 'gemini-2.0-flash-exp-image-generation' },
+  { id: 'zhipu', name: '智谱 AI', models: [{ id: 'cogview-3-plus', name: 'CogView-3-Plus' }, { id: 'cogview-3', name: 'CogView-3' }], defaultModel: 'cogview-3-plus' },
+  { id: 'qwen', name: '通义万相', models: [{ id: 'wanx-v1', name: '通义万相' }], defaultModel: 'wanx-v1' },
+];
+
 export default function SettingsPage() {
-  const [apiKey, setApiKey] = useState('');
-  const [model, setModel] = useState('dall-e-3');
-  const [style, setStyle] = useState('cartoon');
+  const [configs, setConfigs] = useState<Map<string, { apiKey: string; model: string }>>(new Map());
+  const [activeProvider, setActiveProvider] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/settings')
+    fetch('/api/provider-configs')
       .then(r => r.json())
       .then(data => {
-        if (data.settings) {
-          setModel(data.settings.default_model || 'dall-e-3');
-          setStyle(data.settings.default_style || 'cartoon');
+        const newConfigs = new Map();
+        let active = null;
+        for (const c of data.configs || []) {
+          newConfigs.set(c.provider, { apiKey: '', model: c.model });
+          if (c.isActive) active = c.provider;
         }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+        setConfigs(newConfigs);
+        setActiveProvider(active);
+      });
   }, []);
 
-  const handleSave = async () => {
-    await fetch('/api/settings', {
+  const handleSave = async (providerId: string) => {
+    const cfg = configs.get(providerId);
+    if (!cfg) return;
+    await fetch('/api/provider-configs', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ openai_api_key: apiKey, default_model: model, default_style: style }),
+      body: JSON.stringify({ provider: providerId, api_key: cfg.apiKey, model: cfg.model, is_active: activeProvider === providerId }),
     });
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setTimeout(() => setSaved(false), 1500);
   };
 
-  if (loading) return <div className="max-w-2xl mx-auto p-6">加载中...</div>;
-
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="max-w-3xl mx-auto p-6">
       <div className="flex items-center gap-4 mb-6">
         <Link href="/" className="text-gray-600 hover:text-gray-900">返回</Link>
         <h1 className="text-2xl font-bold">设置</h1>
       </div>
-
-      <div className="space-y-6">
-        <div className="border border-gray-200 rounded-lg p-5 bg-white">
-          <h2 className="font-bold mb-4">AI 文生图配置</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">OpenAI API Key</label>
-              <input
-                type="password"
-                value={apiKey}
-                onChange={e => setApiKey(e.target.value)}
-                placeholder="sk-..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-              />
-              <p className="text-xs text-gray-400 mt-1">你的 API Key 仅存储在本地数据库中</p>
+      {saved && <div className="mb-4 p-2 bg-green-50 text-green-700 rounded text-sm">已保存</div>}
+      <div className="space-y-4">
+        {PROVIDER_LIST.map(def => (
+          <div key={def.id} className="border border-gray-200 rounded-lg p-5 bg-white">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-bold">{def.name}</h2>
+              <button
+                onClick={() => setActiveProvider(def.id)}
+                className={`px-3 py-1 rounded text-sm ${activeProvider === def.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+              >
+                {activeProvider === def.id ? '默认' : '设为默认'}
+              </button>
             </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">默认模型</label>
-              <select value={model} onChange={e => setModel(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
-                <option value="dall-e-3">DALL-E 3</option>
-                <option value="dall-e-2">DALL-E 2</option>
-              </select>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">API Key</label>
+                <input
+                  type="password"
+                  value={configs.get(def.id)?.apiKey || ''}
+                  onChange={e => {
+                    const next = new Map(configs);
+                    const c = next.get(def.id) || { apiKey: '', model: def.defaultModel };
+                    next.set(def.id, { ...c, apiKey: e.target.value });
+                    setConfigs(next);
+                  }}
+                  placeholder={`输入 ${def.name} 的 API Key`}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">模型</label>
+                <select
+                  value={configs.get(def.id)?.model || def.defaultModel}
+                  onChange={e => {
+                    const next = new Map(configs);
+                    const c = next.get(def.id) || { apiKey: '', model: def.defaultModel };
+                    next.set(def.id, { ...c, model: e.target.value });
+                    setConfigs(next);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                >
+                  {def.models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                </select>
+              </div>
+              <button onClick={() => handleSave(def.id)} className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">保存</button>
             </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">默认风格</label>
-              <select value={style} onChange={e => setStyle(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
-                <option value="cartoon">卡通</option>
-                <option value="pixel">像素</option>
-                <option value="minimalist">简约</option>
-                <option value="cute">可爱</option>
-                <option value="retro">复古</option>
-              </select>
-            </div>
-            <button onClick={handleSave} className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
-              {saved ? '已保存' : '保存设置'}
-            </button>
           </div>
-        </div>
+        ))}
       </div>
     </div>
   );

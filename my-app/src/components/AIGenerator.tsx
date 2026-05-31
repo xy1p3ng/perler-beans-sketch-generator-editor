@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { buildPrompt, StyleId, STYLE_OPTIONS } from '@/lib/prompts';
 
 interface AIGeneratorProps {
@@ -12,6 +13,18 @@ export default function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [provider, setProvider] = useState('openai');
+  const [availableProviders, setAvailableProviders] = useState<Array<{ provider: string; hasKey: boolean; model: string | null; isActive: boolean }>>([]);
+
+  useEffect(() => {
+    fetch('/api/provider-configs')
+      .then(r => r.json())
+      .then(data => {
+        const withKey = (data.configs || []).filter((c: any) => c.hasKey);
+        setAvailableProviders(withKey);
+        if (withKey.length > 0) setProvider(withKey[0].provider);
+      });
+  }, []);
 
   const handleGenerate = async () => {
     if (!description.trim()) { setError('请输入图片描述'); return; }
@@ -22,7 +35,7 @@ export default function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
       const res = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ provider, prompt, style }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || '生成失败');
@@ -37,6 +50,18 @@ export default function AIGenerator({ onImageGenerated }: AIGeneratorProps) {
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center gap-2 mb-3">
+        <label className="text-sm text-gray-600">模型:</label>
+        {availableProviders.length === 0 ? (
+          <span className="text-sm text-red-500">未配置 API Key，<Link href="/settings" className="underline">去设置</Link></span>
+        ) : (
+          <select value={provider} onChange={e => setProvider(e.target.value)} className="px-2 py-1 border border-gray-300 rounded text-sm">
+            {availableProviders.map((p: any) => (
+              <option key={p.provider} value={p.provider}>{p.provider}</option>
+            ))}
+          </select>
+        )}
+      </div>
       <div>
         <label className="block text-sm text-gray-600 mb-1">图片描述</label>
         <textarea
