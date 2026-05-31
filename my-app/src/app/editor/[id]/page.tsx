@@ -153,6 +153,9 @@ export default function EditorPage() {
               {String.fromCharCode(65 + hoveredCell.col)}{hoveredCell.row + 1} · {selectedColor?.color_no || '-'}
             </span>
           )}
+          <Link href={`/focus/${projectId}`}>
+            <button className="px-3 py-1.5 bg-purple-600 text-white rounded text-sm hover:bg-purple-700">制作模式</button>
+          </Link>
           <Link href={`/export/${projectId}`}>
             <button className="px-3 py-1.5 bg-green-600 text-white rounded text-sm hover:bg-green-700">导出</button>
           </Link>
