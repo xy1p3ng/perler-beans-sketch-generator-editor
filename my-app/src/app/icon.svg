@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Background grid representing pegboard -->
+  <rect width="64" height="64" rx="8" fill="#2D3436"/>
+  <!-- Row 0: decorative top -->
+  <rect x="12" y="12" width="12" height="12" rx="2" fill="#FF6B6B"/>
+  <rect x="26" y="12" width="12" height="12" rx="2" fill="#4ECDC4"/>
+  <rect x="40" y="12" width="12" height="12" rx="2" fill="#FFE66D"/>
+  <!-- Row 1: heart top -->
+  <rect x="12" y="26" width="12" height="12" rx="2" fill="#FD79A8"/>
+  <rect x="26" y="26" width="12" height="12" rx="2" fill="#FD79A8"/>
+  <rect x="40" y="26" width="12" height="12" rx="2" fill="#A29BFE"/>
+  <!-- Row 2: heart bottom -->
+  <rect x="12" y="40" width="12" height="12" rx="2" fill="#FD79A8"/>
+  <rect x="26" y="40" width="12" height="12" rx="2" fill="#FD79A8"/>
+  <rect x="40" y="40" width="12" height="12" rx="2" fill="#FD79A8"/>
+</svg>
