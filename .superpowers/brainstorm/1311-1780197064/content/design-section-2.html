@@ -1,0 +1,265 @@
+<h2>设计方案 — 第 2 部分：编辑器与导出</h2>
+<p class="subtitle">核心交互页面详细设计</p>
+
+<div class="section">
+  <h3>页面 3：图纸编辑器 <code>/editor/[projectId]</code></h3>
+  <div class="mockup">
+    <div class="mockup-header">三栏布局：工具栏 | 画布 | 颜色面板</div>
+    <div class="mockup-body">
+      <div style="display:flex;gap:0;height:280px;border:1px solid #ddd;border-radius:6px;overflow:hidden">
+        <!-- 左侧工具栏 -->
+        <div style="width:48px;background:#f8f9fa;border-right:1px solid #e0e0e0;display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:4px">
+          <div style="width:36px;height:36px;background:#e3f2fd;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" title="画笔">✏️</div>
+          <div style="width:36px;height:36px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" title="填充">🪣</div>
+          <div style="width:36px;height:36px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" title="橡皮擦">🧽</div>
+          <div style="width:36px;height:36px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" title="取色器">💧</div>
+          <div style="height:1px;width:28px;background:#ddd;margin:4px 0"></div>
+          <div style="width:36px;height:36px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" title="撤销">↩️</div>
+          <div style="width:36px;height:36px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" title="重做">↪️</div>
+          <div style="height:1px;width:28px;background:#ddd;margin:4px 0"></div>
+          <div style="width:36px;height:36px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer" title="放大">+</div>
+          <div style="width:36px;height:36px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer" title="缩小">−</div>
+        </div>
+
+        <!-- 中间画布 -->
+        <div style="flex:1;background:#fafafa;position:relative;overflow:auto;display:flex;align-items:center;justify-content:center">
+          <!-- 模拟正方形网格 -->
+          <div style="display:grid;grid-template-columns:repeat(10, 18px);grid-template-rows:repeat(10, 18px);gap:1px;background:#ddd;padding:1px;border:2px solid #333">
+            <div style="background:#e91e63;width:18px;height:18px"></div>
+            <div style="background:#e91e63;width:18px;height:18px"></div>
+            <div style="background:#e91e63;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#2196f3;width:18px;height:18px"></div>
+            <div style="background:#2196f3;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <!-- 简化展示，实际为完整的50x50 -->
+            <div style="background:#e91e63;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#2196f3;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#ffeb3b;width:18px;height:18px"></div>
+            <div style="background:#ffeb3b;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+            <div style="background:#fff;width:18px;height:18px"></div>
+          </div>
+          <!-- 坐标提示 -->
+          <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);color:#fff;padding:4px 12px;border-radius:4px;font-size:12px;font-family:monospace">
+            D7 · A02 红色 · 缩放 200%
+          </div>
+        </div>
+
+        <!-- 右侧颜色面板 -->
+        <div style="width:170px;background:#f8f9fa;border-left:1px solid #e0e0e0;padding:10px;overflow-y:auto">
+          <div style="font-size:11px;font-weight:bold;margin-bottom:8px;color:#333">当前使用颜色（8色）</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;align-items:center;gap:8px;padding:4px 6px;background:#fff;border-radius:4px;border:2px solid #2196f3;cursor:pointer">
+              <div style="width:20px;height:20px;background:#2196f3;border-radius:3px;border:1px solid #ddd"></div>
+              <div style="font-size:11px">
+                <div style="font-weight:bold">A02 蓝色</div>
+                <div style="color:#999;font-size:10px">18颗</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:4px 6px;background:#fff;border-radius:4px;border:1px solid #e0e0e0;cursor:pointer">
+              <div style="width:20px;height:20px;background:#e91e63;border-radius:3px;border:1px solid #ddd"></div>
+              <div style="font-size:11px">
+                <div>A01 红色</div>
+                <div style="color:#999;font-size:10px">24颗</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:4px 6px;background:#fff;border-radius:4px;border:1px solid #e0e0e0;cursor:pointer">
+              <div style="width:20px;height:20px;background:#4caf50;border-radius:3px;border:1px solid #ddd"></div>
+              <div style="font-size:11px">
+                <div>A03 绿色</div>
+                <div style="color:#999;font-size:10px">12颗</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:4px 6px;background:#fff;border-radius:4px;border:1px solid #e0e0e0;cursor:pointer">
+              <div style="width:20px;height:20px;background:#ffeb3b;border-radius:3px;border:1px solid #ddd"></div>
+              <div style="font-size:11px">
+                <div>A04 黄色</div>
+                <div style="color:#999;font-size:10px">8颗</div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding-top:8px;border-top:1px solid #e0e0e0">
+            <div style="font-size:11px;color:#666;margin-bottom:6px">操作</div>
+            <button class="mock-button" style="width:100%;font-size:11px;margin-bottom:4px">🔍 高亮此色</button>
+            <button class="mock-button" style="width:100%;font-size:11px;margin-bottom:4px">🔄 替换颜色</button>
+            <button class="mock-button" style="width:100%;font-size:11px">💾 保存项目</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:#666;margin-top:8px">
+    <strong>交互说明：</strong>点击格子修改颜色（当前选中的颜色），滚轮缩放，拖拽平移，悬停显示坐标和色号。右侧面板点击颜色可切换当前画笔颜色，「高亮此色」会高亮所有该颜色的格子。
+  </p>
+</div>
+
+<div class="section">
+  <h3>页面 4：统计与导出 <code>/export/[projectId]</code></h3>
+  <div class="mockup">
+    <div class="mockup-body">
+      <div style="display:flex;gap:16px">
+        <!-- 左侧预览 -->
+        <div style="width:220px;border:1px solid #ddd;border-radius:8px;padding:12px;background:#fff">
+          <div style="font-size:12px;font-weight:bold;margin-bottom:8px">图纸预览</div>
+          <div style="width:180px;height:180px;margin:0 auto;background:#fafafa;border:1px solid #ddd;display:flex;align-items:center;justify-content:center">
+            <div style="font-size:11px;color:#999">最终图纸缩略图</div>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:#666;text-align:center">
+            50×50 · 8色 · 2500颗
+          </div>
+        </div>
+
+        <!-- 中间统计表 -->
+        <div style="flex:1;border:1px solid #ddd;border-radius:8px;padding:12px;background:#fff">
+          <div style="font-size:12px;font-weight:bold;margin-bottom:8px">用豆统计</div>
+          <table style="width:100%;font-size:11px;border-collapse:collapse">
+            <thead>
+              <tr style="background:#f5f5f5;text-align:left">
+                <th style="padding:6px;border-bottom:1px solid #ddd">色块</th>
+                <th style="padding:6px;border-bottom:1px solid #ddd">色号</th>
+                <th style="padding:6px;border-bottom:1px solid #ddd">颜色名</th>
+                <th style="padding:6px;border-bottom:1px solid #ddd">数量</th>
+                <th style="padding:6px;border-bottom:1px solid #ddd">占比</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:6px;border-bottom:1px solid #eee"><div style="width:16px;height:16px;background:#e91e63;border-radius:2px"></div></td>
+                <td style="padding:6px;border-bottom:1px solid #eee">A01</td>
+                <td style="padding:6px;border-bottom:1px solid #eee">Red</td>
+                <td style="padding:6px;border-bottom:1px solid #eee;font-weight:bold">24</td>
+                <td style="padding:6px;border-bottom:1px solid #eee">18%</td>
+              </tr>
+              <tr>
+                <td style="padding:6px;border-bottom:1px solid #eee"><div style="width:16px;height:16px;background:#2196f3;border-radius:2px"></div></td>
+                <td style="padding:6px;border-bottom:1px solid #eee">A02</td>
+                <td style="padding:6px;border-bottom:1px solid #eee">Blue</td>
+                <td style="padding:6px;border-bottom:1px solid #eee;font-weight:bold">18</td>
+                <td style="padding:6px;border-bottom:1px solid #eee">14%</td>
+              </tr>
+              <tr>
+                <td style="padding:6px;border-bottom:1px solid #eee"><div style="width:16px;height:16px;background:#4caf50;border-radius:2px"></div></td>
+                <td style="padding:6px;border-bottom:1px solid #eee">A03</td>
+                <td style="padding:6px;border-bottom:1px solid #eee">Green</td>
+                <td style="padding:6px;border-bottom:1px solid #eee;font-weight:bold">12</td>
+                <td style="padding:6px;border-bottom:1px solid #eee">9%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 右侧导出选项 -->
+        <div style="width:200px;border:1px solid #ddd;border-radius:8px;padding:12px;background:#fff">
+          <div style="font-size:12px;font-weight:bold;margin-bottom:10px">导出选项</div>
+          <div style="font-size:12px;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+            <input type="checkbox" checked> <span>高清网格图 PNG</span>
+          </div>
+          <div style="font-size:12px;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+            <input type="checkbox" checked> <span>打印 PDF（含图例）</span>
+          </div>
+          <div style="font-size:12px;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+            <input type="checkbox" checked> <span>色号统计表</span>
+          </div>
+          <div style="font-size:12px;margin-bottom:12px;display:flex;align-items:center;gap:6px">
+            <input type="checkbox"> <span>坐标清单</span>
+          </div>
+          <div style="font-size:11px;color:#666;margin-bottom:10px;padding:8px;background:#f5f5f5;border-radius:4px">
+            <div>文件名: 皮卡丘_50x50</div>
+            <div>格式: ZIP 压缩包</div>
+          </div>
+          <button class="mock-button" style="width:100%">📦 导出全部</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle">编辑器三栏布局和导出页面看起来对吗？有问题请指出，没问题我继续第 3 部分：数据模型和 API 设计。</p>

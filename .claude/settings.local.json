@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "Bash(curl -s https://api.github.com/repos/obra/superpowers/contents/)",
+      "Bash(curl -s https://raw.githubusercontent.com/obra/superpowers/main/README.md)",
+      "Bash(curl -s https://raw.githubusercontent.com/obra/superpowers/master/README.md)",
+      "Bash(claude /plugin install superpowers@claude-plugins-official)",
+      "Bash(curl -s https://api.github.com/repos/obra/superpowers/contents/.claude-plugin)",
+      "Bash(curl *)",
+      "Bash(mkdir -p D:/bean/.claude/skills)",
+      "Bash(cp -r /tmp/superpowers/skills/* D:/bean/.claude/skills/)",
+      "Bash(cp *)",
+      "Bash(pandoc \"D:/bean/拼豆图纸生成与辅助制作工具_PRD_深度调研增强版.docx\" -t markdown --wrap=none)",
+      "Bash(python -c ' *)",
+      "Read(//tmp/**)",
+      "Read(//tmp/perler-beads-ref/**)",
+      "Bash(bash *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}

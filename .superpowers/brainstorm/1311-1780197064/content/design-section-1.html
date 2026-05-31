@@ -1,0 +1,93 @@
+<h2>设计方案 — 第 1 部分：页面结构与路由</h2>
+<p class="subtitle">方案 B：借鉴思路 + 重新构建</p>
+
+<div class="section">
+  <h3>路由设计</h3>
+  <div class="mockup">
+    <div class="mockup-body">
+      <div style="font-size:12px;line-height:2">
+        <div><code style="background:#f5f5f5;padding:2px 6px;border-radius:3px">/</code> → 项目首页（最近项目 + 新建按钮）</div>
+        <div><code style="background:#f5f5f5;padding:2px 6px;border-radius:3px">/new</code> → 上传与参数设置页</div>
+        <div><code style="background:#f5f5f5;padding:2px 6px;border-radius:3px">/editor/[projectId]</code> → 图纸编辑器（核心页面）</div>
+        <div><code style="background:#f5f5f5;padding:2px 6px;border-radius:3px">/export/[projectId]</code> → 统计与导出页</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>页面 1：项目首页 <code>/</code></h3>
+  <div class="mockup">
+    <div class="mockup-body">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="mock-nav" style="justify-content:space-between">
+          <span>🧩 拼豆工坊</span>
+          <button class="mock-button">+ 新建项目</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <div style="border:1px solid #ddd;border-radius:8px;padding:12px;background:#fff">
+            <div style="height:80px;background:#f0f0f0;border-radius:4px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;color:#999;font-size:12px">项目缩略图</div>
+            <div style="font-size:12px;font-weight:bold">皮卡丘</div>
+            <div style="font-size:11px;color:#999">50x50 · 12色 · 编辑中</div>
+          </div>
+          <div style="border:1px solid #ddd;border-radius:8px;padding:12px;background:#fff">
+            <div style="height:80px;background:#f0f0f0;border-radius:4px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;color:#999;font-size:12px">项目缩略图</div>
+            <div style="font-size:12px;font-weight:bold">猫咪头像</div>
+            <div style="font-size:11px;color:#999">29x29 · 8色 · 已完成</div>
+          </div>
+          <div style="border:2px dashed #ddd;border-radius:8px;padding:12px;background:#fafafa;display:flex;align-items:center;justify-content:center;color:#999;font-size:12px;cursor:pointer">
+            + 新建项目
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>页面 2：上传与参数设置 <code>/new</code></h3>
+  <div class="mockup">
+    <div class="mockup-body">
+      <div style="display:flex;gap:16px;height:200px">
+        <div style="flex:1;border:2px dashed #ccc;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#f9f9f9">
+          <div style="text-align:center;color:#666">
+            <div style="font-size:28px;margin-bottom:8px">📤</div>
+            <div style="font-size:13px">点击或拖拽上传图片</div>
+            <div style="font-size:11px;color:#999">支持 JPG / PNG / WEBP，最大 20MB</div>
+          </div>
+        </div>
+        <div style="width:260px;border:1px solid #ddd;border-radius:8px;padding:16px;background:#fff">
+          <div style="font-size:13px;font-weight:bold;margin-bottom:12px">参数设置</div>
+          <div style="font-size:12px;margin-bottom:8px">
+            <div style="color:#666;margin-bottom:4px">图纸尺寸（行列数）</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input class="mock-input" style="width:60px;text-align:center" value="50">
+              <span>×</span>
+              <input class="mock-input" style="width:60px;text-align:center" value="50">
+            </div>
+          </div>
+          <div style="font-size:12px;margin-bottom:8px">
+            <div style="color:#666;margin-bottom:4px">拼豆板</div>
+            <select class="mock-input" style="width:100%"><option>29×29 标准板（2块拼接）</option></select>
+          </div>
+          <div style="font-size:12px;margin-bottom:8px">
+            <div style="color:#666;margin-bottom:4px">色卡</div>
+            <select class="mock-input" style="width:100%"><option>MARD 标准色（200+色）</option></select>
+          </div>
+          <div style="font-size:12px;margin-bottom:8px">
+            <div style="color:#666;margin-bottom:4px">颜色上限</div>
+            <select class="mock-input" style="width:100%"><option>32色（进阶）</option></select>
+          </div>
+          <div style="font-size:12px;margin-bottom:12px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="checkbox" id="dither"> <label for="dither">启用抖动（增加散点）</label>
+            </div>
+          </div>
+          <button class="mock-button" style="width:100%">生成预览</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle">这部分看起来对吗？确认后我继续第 2 部分：编辑器页面和导出页面的设计。</p>

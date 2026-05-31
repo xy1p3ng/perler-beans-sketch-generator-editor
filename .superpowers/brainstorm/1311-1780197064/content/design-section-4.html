@@ -1,0 +1,119 @@
+<h2>设计方案 — 第 4 部分：图像处理与色卡匹配</h2>
+<p class="subtitle">核心算法流程</p>
+
+<div class="section">
+  <h3>图像转图纸流程</h3>
+  <div class="mockup">
+    <div class="mockup-body">
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;flex-wrap:wrap">
+        <div style="background:#e3f2fd;padding:10px 14px;border-radius:6px;text-align:center">
+          <div style="font-size:18px;margin-bottom:4px">📤</div>
+          <div><strong>1. 上传</strong></div>
+          <div style="color:#666;font-size:10px">原图</div>
+        </div>
+        <div style="color:#999">→</div>
+        <div style="background:#f3e5f5;padding:10px 14px;border-radius:6px;text-align:center">
+          <div style="font-size:18px;margin-bottom:4px">✂️</div>
+          <div><strong>2. 预处理</strong></div>
+          <div style="color:#666;font-size:10px">裁剪/缩放</div>
+        </div>
+        <div style="color:#999">→</div>
+        <div style="background:#e8f5e9;padding:10px 14px;border-radius:6px;text-align:center">
+          <div style="font-size:18px;margin-bottom:4px">🎨</div>
+          <div><strong>3. 像素化</strong></div>
+          <div style="color:#666;font-size:10px">目标行列采样</div>
+        </div>
+        <div style="color:#999">→</div>
+        <div style="background:#fff3e0;padding:10px 14px;border-radius:6px;text-align:center">
+          <div style="font-size:18px;margin-bottom:4px">🎯</div>
+          <div><strong>4. 色卡匹配</strong></div>
+          <div style="color:#666;font-size:10px">最近邻/CIEDE2000</div>
+        </div>
+        <div style="color:#999">→</div>
+        <div style="background:#fce4ec;padding:10px 14px;border-radius:6px;text-align:center">
+          <div style="font-size:18px;margin-bottom:4px">🧹</div>
+          <div><strong>5. 噪点清理</strong></div>
+          <div style="color:#666;font-size:10px">合并孤立点</div>
+        </div>
+        <div style="color:#999">→</div>
+        <div style="background:#e0f2f1;padding:10px 14px;border-radius:6px;text-align:center">
+          <div style="font-size:18px;margin-bottom:4px">✏️</div>
+          <div><strong>6. 编辑器</strong></div>
+          <div style="color:#666;font-size:10px">人工精修</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>色卡匹配算法</h3>
+  <div class="mockup">
+    <div class="mockup-header">MVP 采用 RGB 最近邻 + 可选 CIEDE2000</div>
+    <div class="mockup-body">
+      <div style="font-size:12px;line-height:1.8">
+        <p><strong>步骤 1：色彩量化</strong></p>
+        <p style="color:#666">使用 Pillow 的 <code>Image.quantize()</code> 将图片颜色减少到用户设定的颜色上限（如 32 色）。</p>
+
+        <p><strong>步骤 2：色卡匹配（MVP 简化版）</strong></p>
+        <p style="color:#666">对每个量化后的颜色，计算与 MARD 色卡中每个颜色的 RGB 欧氏距离，取最小值：</p>
+        <div style="background:#f5f5f5;padding:8px 12px;border-radius:4px;font-family:monospace;font-size:11px;margin:8px 0">
+          distance = sqrt((R1-R2)² + (G1-G2)² + (B1-B2)²)
+        </div>
+        <p style="color:#666">返回距离最小的色号作为该格子的匹配结果。</p>
+
+        <p><strong>步骤 3：噪点清理（MVP 可选）</strong></p>
+        <p style="color:#666">识别孤立点（周围 8 格都不同色的单格），替换为周围最多的颜色。可开关。</p>
+
+        <div style="background:#fff8e1;padding:8px 12px;border-radius:4px;margin-top:12px;border-left:3px solid #ffc107">
+          <strong>💡 V1.1 升级方向：</strong>Lab 色彩空间 + CIEDE2000 色差算法（更接近人眼感知）+ Floyd-Steinberg 抖动。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>导出实现</h3>
+  <div class="mockup">
+    <div class="mockup-body">
+      <div style="font-size:12px;line-height:1.8">
+        <p><strong>PNG 网格图：</strong>用 HTML Canvas 绘制，每个格子一个色块 + 细网格线 + 坐标标注。通过 <code>canvas.toDataURL()</code> 生成图片下载。</p>
+        <p><strong>PDF 打印文件：</strong>用 <code>jspdf</code> 库生成，包含：图纸分页、色号图例表、坐标规则说明。</p>
+        <p><strong>色号统计表：</strong>纯前端计算 cells 表聚合，导出 CSV/JSON。</p>
+        <p><strong>坐标清单：</strong>按颜色分组，列出每个颜色所在的所有坐标（如 A02 蓝色: A1, B3, C5...）。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>技术栈汇总</h3>
+  <div class="mockup">
+    <div class="mockup-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
+        <div style="background:#f5f5f5;padding:10px;border-radius:6px">
+          <strong>前端</strong>
+          <ul style="margin:6px 0 0 16px;color:#555;line-height:1.8">
+            <li>Next.js 15 + React 19 + TypeScript</li>
+            <li>Tailwind CSS 4</li>
+            <li>HTML Canvas（网格绘制）</li>
+            <li>jspdf（PDF 导出）</li>
+          </ul>
+        </div>
+        <div style="background:#f5f5f5;padding:10px;border-radius:6px">
+          <strong>后端</strong>
+          <ul style="margin:6px 0 0 16px;color:#555;line-height:1.8">
+            <li>Next.js API Routes</li>
+            <li>better-sqlite3</li>
+            <li>Pillow（Python，图像处理）</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle"><strong>图像处理流程和算法设计到此结束。</strong></p>
+<p class="subtitle">以上 4 部分构成完整 MVP 设计：页面结构 → 编辑器/导出 → 数据模型 → 图像算法。</p>
+<p class="subtitle">如果没有问题，我将把这些整理成设计文档写入项目，然后进入实施阶段。</p>

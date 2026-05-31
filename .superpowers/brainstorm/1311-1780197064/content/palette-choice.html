@@ -1,0 +1,87 @@
+<h2>色卡数据策略</h2>
+<p class="subtitle">色卡是拼豆工具的核心资产。MVP 阶段你倾向于哪种方案？</p>
+
+<div class="section">
+  <h3>方案对比</h3>
+
+  <div class="options">
+    <div class="option" data-choice="mard-only" onclick="toggleSelect(this)">
+      <div class="letter">A</div>
+      <div class="content">
+        <h3>只用 MARD 色号（参考项目同款）</h3>
+        <p>参考项目已内置完整的 MARD 色号对应表（约 200+ 色），可直接复用。MARD 是国内拼豆玩家最常用的色号体系。</p>
+        <div class="pros-cons">
+          <div class="pros">
+            <h4>优点</h4>
+            <ul>
+              <li>数据现成，无需整理</li>
+              <li>参考项目逻辑可直接复用</li>
+              <li>MARD 是国内主流</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <h4>缺点</h4>
+            <ul>
+              <li>不支持 Perler/Hama/Artkal</li>
+              <li>商家可能需要其他品牌</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="option" data-choice="mard-plus-import" onclick="toggleSelect(this)">
+      <div class="letter">B</div>
+      <div class="content">
+        <h3>MARD 为主 + 支持自定义导入色卡</h3>
+        <p>内置 MARD 作为默认色卡，同时提供色卡导入/编辑功能，用户可自行添加 Perler、Hama 等品牌数据。</p>
+        <div class="pros-cons">
+          <div class="pros">
+            <h4>优点</h4>
+            <ul>
+              <li>保留 MARD 开箱即用</li>
+              <li>支持任意品牌扩展</li>
+              <li>符合 PRD 的色卡管理设计</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <h4>缺点</h4>
+            <ul>
+              <li>需要开发色卡导入/编辑 UI</li>
+              <li>增加 MVP 开发量</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="option" data-choice="multi-brand" onclick="toggleSelect(this)">
+      <div class="letter">C</div>
+      <div class="content">
+        <h3>内置多品牌（MARD + Perler + Hama）</h3>
+        <p>MVP 就整理并内置多个主流品牌的色卡数据，用户可在生成时切换品牌。</p>
+        <div class="pros-cons">
+          <div class="pros">
+            <h4>优点</h4>
+            <ul>
+              <li>品牌切换体验完整</li>
+              <li>直接对标竞品（Perlypop 等）</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <h4>缺点</h4>
+            <ul>
+              <li>需要收集/验证多品牌色卡数据</li>
+              <li>色差计算需考虑品牌间差异</li>
+              <li>显著增加 MVP 工作量</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <p class="subtitle" style="color:#666">💡 我的建议：选 B。MARD 覆盖国内主流需求，自定义导入给进阶玩家和商家留出扩展空间，工作量增加可控。</p>
+</div>
