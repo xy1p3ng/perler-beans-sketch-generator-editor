@@ -6,9 +6,14 @@ export interface PaletteColor {
   name: string;
   hex: string;
   rgb: string;
+  category: 'warm' | 'cool' | 'neutral';
 }
 
 export const MARD_PALETTE: PaletteColor[] = paletteData as PaletteColor[];
+
+export const WARM_COLORS = MARD_PALETTE.filter(c => c.category === 'warm');
+export const COOL_COLORS = MARD_PALETTE.filter(c => c.category === 'cool');
+export const NEUTRAL_COLORS = MARD_PALETTE.filter(c => c.category === 'neutral');
 
 export function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -27,7 +32,11 @@ export function colorDistance(rgb1: { r: number; g: number; b: number }, rgb2: {
   );
 }
 
-export function findClosestPaletteColor(hex: string, palette: PaletteColor[] = MARD_PALETTE): PaletteColor | null {
+export function findClosestPaletteColor(
+  hex: string,
+  palette: PaletteColor[] = MARD_PALETTE,
+  bias: 'warm' | 'cool' | 'neutral' | null = null
+): PaletteColor | null {
   const rgb = hexToRgb(hex);
   if (!rgb) return null;
   let minDist = Infinity;
@@ -35,7 +44,10 @@ export function findClosestPaletteColor(hex: string, palette: PaletteColor[] = M
   for (const color of palette) {
     const paletteRgb = hexToRgb(color.hex);
     if (!paletteRgb) continue;
-    const dist = colorDistance(rgb, paletteRgb);
+    let dist = colorDistance(rgb, paletteRgb);
+    if (bias && color.category === bias) {
+      dist *= 0.7;
+    }
     if (dist < minDist) {
       minDist = dist;
       closest = color;

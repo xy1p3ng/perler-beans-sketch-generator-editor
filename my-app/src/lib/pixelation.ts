@@ -11,7 +11,8 @@ export async function pixelateImage(
   targetRows: number,
   targetCols: number,
   _colorLimit: number,
-  palette: PaletteColor[]
+  palette: PaletteColor[],
+  colorBias: 'warm' | 'cool' | 'neutral' | null = null
 ): Promise<PixelatedResult> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -32,7 +33,7 @@ export async function pixelateImage(
           const g = pixels[idx + 1];
           const b = pixels[idx + 2];
           const hex = rgbToHex(r, g, b);
-          const closest = findClosestPaletteColor(hex, palette);
+          const closest = findClosestPaletteColor(hex, palette, colorBias);
           cells.push({
             row,
             col,

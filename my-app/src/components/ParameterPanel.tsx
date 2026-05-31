@@ -2,7 +2,7 @@
 import { useState } from 'react';
 
 interface ParameterPanelProps {
-  onSubmit: (params: { name: string; rows: number; cols: number; boardType: string; colorLimit: number; ditherEnabled: boolean }) => void;
+  onSubmit: (params: { name: string; rows: number; cols: number; boardType: string; colorLimit: number; ditherEnabled: boolean; colorBias: 'warm' | 'cool' | 'neutral' | null }) => void;
   disabled: boolean;
 }
 
@@ -11,11 +11,16 @@ export default function ParameterPanel({ onSubmit, disabled }: ParameterPanelPro
   const [rows, setRows] = useState(50);
   const [cols, setCols] = useState(50);
   const [boardType, setBoardType] = useState('29x29');
+  const [customRows, setCustomRows] = useState(50);
+  const [customCols, setCustomCols] = useState(50);
   const [colorLimit, setColorLimit] = useState(32);
   const [ditherEnabled, setDitherEnabled] = useState(false);
+  const [colorBias, setColorBias] = useState<'warm' | 'cool' | 'neutral' | null>(null);
 
   const handleSubmit = () => {
-    onSubmit({ name: name || '未命名项目', rows, cols, boardType, colorLimit, ditherEnabled });
+    const finalRows = boardType === 'custom' ? customRows : rows;
+    const finalCols = boardType === 'custom' ? customCols : cols;
+    onSubmit({ name: name || '未命名项目', rows: finalRows, cols: finalCols, boardType, colorLimit, ditherEnabled, colorBias });
   };
 
   return (
@@ -42,13 +47,30 @@ export default function ParameterPanel({ onSubmit, disabled }: ParameterPanelPro
             <option value="custom">自定义</option>
           </select>
         </div>
+        {boardType === 'custom' && (
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">自定义尺寸</label>
+            <div className="flex items-center gap-2">
+              <input type="number" value={customRows} onChange={e => setCustomRows(Math.max(1, Math.min(200, parseInt(e.target.value) || 1)))} className="w-20 px-3 py-2 border border-gray-300 rounded-md text-sm text-center" />
+              <span className="text-gray-400">×</span>
+              <input type="number" value={customCols} onChange={e => setCustomCols(Math.max(1, Math.min(200, parseInt(e.target.value) || 1)))} className="w-20 px-3 py-2 border border-gray-300 rounded-md text-sm text-center" />
+            </div>
+          </div>
+        )}
         <div>
           <label className="block text-sm text-gray-600 mb-1">颜色上限</label>
-          <select value={colorLimit} onChange={e => setColorLimit(parseInt(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
-            <option value={16}>16色（新手）</option>
-            <option value={32}>32色（进阶）</option>
-            <option value={64}>64色（复杂）</option>
-            <option value={999}>无限制</option>
+          <input type="number" min={1} max={200} value={colorLimit} onChange={e => setColorLimit(Math.max(1, Math.min(200, parseInt(e.target.value) || 1)))} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+        </div>
+        <div>
+          <label className="block text-sm text-gray-600 mb-1">颜色偏向</label>
+          <select value={colorBias ?? ''} onChange={e => {
+            const val = e.target.value;
+            setColorBias(val === '' ? null : val as 'warm' | 'cool' | 'neutral');
+          }} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+            <option value="">无偏向</option>
+            <option value="warm">暖色系</option>
+            <option value="cool">冷色系</option>
+            <option value="neutral">中性色</option>
           </select>
         </div>
         <div className="flex items-center gap-2">
