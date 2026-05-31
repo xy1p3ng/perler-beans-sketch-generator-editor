@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 拼豆工坊
 
-## Getting Started
+图片转拼豆图纸编辑器，支持像素化、色卡匹配、网格编辑和导出。
 
-First, run the development server:
+## 功能
+
+- **图片上传** — 拖拽上传，支持 JPG/PNG/WEBP
+- **参数设置** — 行列数、拼豆板尺寸、颜色上限、抖动
+- **像素化** — 前端 Canvas 采样 + MARD 色卡匹配
+- **网格编辑** — 画笔、填充、橡皮擦、取色器
+- **撤销/重做** — 50+ 步历史记录
+- **颜色高亮** — 突出显示当前颜色位置，其余颜色变淡
+- **导出** — PNG 网格图 / PDF 打印文件 / CSV 色号表 / 坐标清单
+
+## 技术栈
+
+- Next.js 15 + React 19 + TypeScript
+- Tailwind CSS 4
+- better-sqlite3
+- jspdf
+
+## 启动
 
 ```bash
+cd my-app
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+打开 http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 使用流程
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. 首页点击「新建项目」
+2. 上传图片，设置行列数（如 50x50）
+3. 点击「生成预览」
+4. 在编辑器中点击格子修改颜色
+5. 点击「导出」生成图纸文件

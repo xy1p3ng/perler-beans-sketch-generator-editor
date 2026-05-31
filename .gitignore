@@ -1,0 +1,14 @@
+# IDE
+.idea/
+.vscode/
+
+# Claude
+.claude/
+.superpowers/
+
+# Project docs (keep in repo)
+!docs/
+
+# OS
+.DS_Store
+Thumbs.db
